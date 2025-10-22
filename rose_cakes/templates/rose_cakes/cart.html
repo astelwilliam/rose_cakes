@@ -1,0 +1,84 @@
+{% extends 'rose_cakes/base.html' %}
+
+{% block title %}Cart - Rose Cakes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-3">Your Shopping Cart</h1>
+            <p class="lead">Review your selected cakes before checkout</p>
+        </div>
+    </div>
+
+    {% if cart %}
+        <div class="row g-4">
+            <div class="col-lg-8">
+                {% for item in cart %}
+                    <div class="card mb-3 shadow-sm cart-item">
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-3 col-sm-4">
+                                    {% if item.cake.image %}
+                                        <img src="{{ item.cake.image.url }}" class="img-fluid rounded" alt="{{ item.cake.name }}">
+                                    {% else %}
+                                        <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 80px;">
+                                            <span class="text-muted">No Image</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-5 col-sm-8">
+                                    <h5 class="card-title">{{ item.cake.name }}</h5>
+                                    <p class="card-text text-muted">{{ item.cake.description|truncatechars:80 }}</p>
+                                    <p class="card-text"><strong class="text-primary">₹{{ item.cake.price }}</strong></p>
+                                </div>
+                                <div class="col-md-2 col-sm-6">
+                                    <div class="text-center">
+                                        <p class="mb-1"><strong>Quantity:</strong> {{ item.quantity }}</p>
+                                        <p class="mb-0"><strong>Total:</strong> <span class="text-success">₹{{ item.total_price }}</span></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-6">
+                                    <form method="post" action="{% url 'remove_from_cart' item.cake.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger w-100">Remove</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-lg-4">
+                <div class="card shadow sticky-top" style="top: 20px;">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="card-title mb-0">Order Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Total Items:</span>
+                            <strong>{{ total_items }}</strong>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span class="fs-5">Total Price:</span>
+                            <strong class="fs-5 text-primary">₹{{ total_price }}</strong>
+                        </div>
+                        <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-100 mb-2">Proceed to Checkout</a>
+                        <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">Continue Shopping</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="fas fa-shopping-cart fs-1 text-muted mb-3"></i>
+                <h3 class="text-muted">Your cart is empty</h3>
+                <p class="text-muted fs-5">Looks like you haven't added any cakes to your cart yet.</p>
+            </div>
+            <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse Our Cakes</a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

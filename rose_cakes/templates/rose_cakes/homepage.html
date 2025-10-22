@@ -1,0 +1,85 @@
+{% extends 'rose_cakes/base.html' %}
+{% load static %}
+
+{% block title %}Home - Rose Cakes{% endblock %}
+
+{% block content %}
+<div class="hero-section bg-light py-5 mb-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold text-primary mb-4">Welcome to Rose Cakes</h1>
+                <p class="lead fs-5 mb-4">Delicious cakes made with love and the finest ingredients. Perfect for every occasion.</p>
+                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">Shop Now</a>
+                <a href="{% url 'search' %}" class="btn btn-outline-primary btn-lg">Find Your Cake</a>
+            </div>
+            <div class="col-lg-6">
+                <img src="{% static 'images/hero-cake.jpg' %}" alt="Delicious Cake" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h2 class="mb-4 text-center">Featured Cakes</h2>
+            {% if featured_cakes %}
+                <div class="row g-4">
+                    {% for cake in featured_cakes %}
+                        <div class="col-xl-3 col-lg-4 col-md-6">
+                            <div class="card h-100 shadow-sm">
+                                {% if cake.image %}
+                                    <img src="{{ cake.image.url }}" class="card-img-top" alt="{{ cake.name }}">
+                                {% else %}
+                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                        <span class="text-muted">No Image</span>
+                                    </div>
+                                {% endif %}
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title">{{ cake.name }}</h5>
+                                    <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
+                                    <div class="mt-auto">
+                                        <p class="card-text mb-2"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                        <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100">View Details</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <p class="text-muted fs-4">No featured cakes available at the moment.</p>
+                    <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse All Cakes</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <div class="bg-primary text-white rounded p-4">
+                <h3 class="mb-3">Why Choose Rose Cakes?</h3>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <i class="fas fa-heart fs-1 mb-2"></i>
+                        <h5>Made with Love</h5>
+                        <p>Every cake is crafted with passion and care</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <i class="fas fa-shipping-fast fs-1 mb-2"></i>
+                        <h5>Fast Delivery</h5>
+                        <p>Quick and reliable delivery to your doorstep</p>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <i class="fas fa-star fs-1 mb-2"></i>
+                        <h5>Premium Quality</h5>
+                        <p>Only the finest ingredients and expert baking</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
