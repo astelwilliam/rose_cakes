@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cake, Order, OrderItem, Category, Coupon
+from .models import Cake, Order, OrderItem, Category, Coupon, SpecialOffer
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -11,6 +11,13 @@ class CakeAdmin(admin.ModelAdmin):
     list_display = ('name', 'price', 'featured', 'category', 'created_at')
     list_filter = ('featured', 'category', 'created_at')
     search_fields = ('name', 'description')
+
+@admin.register(SpecialOffer)
+class SpecialOfferAdmin(admin.ModelAdmin):
+    list_display = ('title', 'discount_percentage', 'discount_amount', 'minimum_order_value', 'active', 'valid_from', 'valid_until')
+    list_filter = ('active', 'valid_from', 'valid_until')
+    search_fields = ('title', 'description')
+    list_editable = ('active', 'discount_percentage', 'discount_amount', 'minimum_order_value')
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):

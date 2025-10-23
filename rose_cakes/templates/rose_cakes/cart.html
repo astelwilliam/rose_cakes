@@ -30,7 +30,8 @@
                                 <div class="col-md-5 col-sm-8">
                                     <h5 class="card-title">{{ item.cake.name }}</h5>
                                     <p class="card-text text-muted">{{ item.cake.description|truncatechars:80 }}</p>
-                                    <p class="card-text"><strong class="text-primary">₹{{ item.cake.price }}</strong></p>
+                                        <p class="card-text"><strong class="text-primary">₹{{ item.cake.price }}</strong></p>
+                                        <p class="card-text"><small class="text-muted">{{ item.cake.weight }} kg</small></p>
                                 </div>
                                 <div class="col-md-2 col-sm-6">
                                     <div class="text-center">
@@ -59,10 +60,18 @@
                             <span>Total Items:</span>
                             <strong>{{ total_items }}</strong>
                         </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal:</span>
+                            <strong>₹{{ total_price }}</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Charge:</span>
+                            <strong>₹{{ delivery_charge }}</strong>
+                        </div>
                         <hr>
                         <div class="d-flex justify-content-between mb-3">
-                            <span class="fs-5">Total Price:</span>
-                            <strong class="fs-5 text-primary">₹{{ total_price }}</strong>
+                            <span class="fs-5">Final Total:</span>
+                            <strong class="fs-5 text-primary">₹{{ final_total }}</strong>
                         </div>
                         <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-100 mb-2">Proceed to Checkout</a>
                         <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">Continue Shopping</a>

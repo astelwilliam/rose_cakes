@@ -69,7 +69,8 @@
                             {% endif %}
                             <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
                             <div class="mt-auto">
-                                <p class="card-text mb-2"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                <p class="card-text mb-1"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                <p class="card-text mb-2"><small class="text-muted">{{ cake.weight }} kg</small></p>
                                 <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100">View Details</a>
                             </div>
                         </div>

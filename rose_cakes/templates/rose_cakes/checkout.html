@@ -50,8 +50,16 @@
                                     </tbody>
                                     <tfoot>
                                         <tr class="table-light">
-                                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                            <td><strong class="text-primary fs-5">₹{{ total }}</strong></td>
+                                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
+                                            <td><strong>₹{{ total }}</strong></td>
+                                        </tr>
+                                        <tr class="table-light">
+                                            <td colspan="3" class="text-end"><strong>Delivery Charge:</strong></td>
+                                            <td><strong>₹{{ delivery_charge }}</strong></td>
+                                        </tr>
+                                        <tr class="table-light">
+                                            <td colspan="3" class="text-end"><strong>Final Total:</strong></td>
+                                            <td><strong class="text-primary fs-5">₹{{ total|add:delivery_charge }}</strong></td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -175,6 +183,11 @@
                                 <div class="mb-3">
                                     <label for="phone" class="form-label">Phone Number</label>
                                     <input type="tel" class="form-control" id="phone" name="phone" required>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="pincode" class="form-label">Pincode</label>
+                                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter your pincode" required>
+                                    <small class="form-text text-muted">We only deliver within 5km radius of our location (Pincode: 682001)</small>
                                 </div>
                                 <div class="mb-3">
                                     <label for="address" class="form-label">Shipping Address</label>

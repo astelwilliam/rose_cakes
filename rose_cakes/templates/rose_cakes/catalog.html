@@ -1,13 +1,34 @@
 {% extends 'rose_cakes/base.html' %}
 
-{% block title %}Catalog - Rose Cakes{% endblock %}
+{% block title %}Menu - Rose Cakes{% endblock %}
 
 {% block content %}
 <div class="container">
     <div class="row mb-4">
         <div class="col-12">
-            <h1 class="mb-3">Our Cake Catalog</h1>
+            <h1 class="mb-3">Our Cake Menu</h1>
             <p class="lead">Discover our delicious collection of cakes</p>
+        </div>
+    </div>
+
+    <!-- Category Filter Section -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-6">
+                            <label for="categoryFilter" class="form-label">Category</label>
+                            <select class="form-select" id="categoryFilter">
+                                <option value="">All Categories</option>
+                                {% for category in categories %}
+                                    <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -30,17 +51,24 @@
                             {% endif %}
                             <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
                             <div class="mt-auto">
-                                <p class="card-text mb-2"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                <p class="card-text mb-1"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                <p class="card-text mb-2"><small class="text-muted">{{ cake.weight }} kg</small></p>
                                 <div class="row g-1">
-                                    <div class="col-6">
-                                        <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary btn-sm w-100">View Details</a>
-                                    </div>
                                     <div class="col-6">
                                         <form method="post" action="{% url 'add_to_cart' cake.id %}">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-success btn-sm w-100">Add to Cart</button>
                                         </form>
                                     </div>
+                                    <div class="col-6">
+                                        <form method="post" action="{% url 'buy_now' cake.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-warning btn-sm w-100">Buy Now</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="mt-2">
+                                    <a href="{% url 'cake_detail' cake.id %}" class="btn btn-outline-primary btn-sm w-100">View Details</a>
                                 </div>
                             </div>
                         </div>
@@ -55,4 +83,22 @@
         </div>
     {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const categoryFilter = document.getElementById('categoryFilter');
+
+    function updateFilters() {
+        const category = categoryFilter.value;
+
+        const params = new URLSearchParams();
+        if (category) params.append('category', category);
+
+        const url = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+        window.location.href = url;
+    }
+
+    categoryFilter.addEventListener('change', updateFilters);
+});
+</script>
 {% endblock %}

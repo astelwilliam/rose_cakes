@@ -4,19 +4,112 @@
 {% block title %}Home - Rose Cakes{% endblock %}
 
 {% block content %}
-<div class="hero-section bg-light py-5 mb-5">
+<!-- Hero Section with Parallax -->
+<div class="hero-section position-relative overflow-hidden" style="height: 80vh; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'images/hero-cake.jpg' %}'); background-size: cover; background-position: center; background-attachment: fixed;">
+    <div class="container h-100 d-flex align-items-center">
+        <div class="row align-items-center text-white">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">Welcome to Rose Cakes</h1>
+                <p class="lead fs-5 mb-4">Delicious cakes made with love and the finest ingredients. Perfect for every occasion.</p>
+                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">Shop Now</a>
+                <a href="{% url 'search' %}" class="btn btn-outline-light btn-lg">Find Your Cake</a>
+            </div>
+            <div class="col-lg-6">
+                <div class="text-center">
+                    <img src="{% static 'images/hero-cake.jpg' %}" alt="Delicious Cake" class="img-fluid rounded shadow" style="max-height: 400px;" onerror="this.style.display='none'">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- About Section -->
+<div class="about-section py-5 bg-light">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
-                <h1 class="display-4 fw-bold text-primary mb-4">Welcome to Rose Cakes</h1>
-                <p class="lead fs-5 mb-4">Delicious cakes made with love and the finest ingredients. Perfect for every occasion.</p>
-                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">Shop Now</a>
-                <a href="{% url 'search' %}" class="btn btn-outline-primary btn-lg">Find Your Cake</a>
+                <h2 class="mb-4">About Rose Cakes</h2>
+                <p class="lead">We specialize in creating beautiful, delicious cakes for all your special moments. From birthdays to weddings, anniversaries to corporate events, we have the perfect cake for every celebration.</p>
+                <p>Our cakes are made fresh daily using only the finest ingredients, traditional recipes, and a whole lot of love. Each cake is a masterpiece, crafted by our skilled bakers with attention to every detail.</p>
+                <a href="{% url 'catalog' %}" class="btn btn-primary">Explore Our Menu</a>
             </div>
             <div class="col-lg-6">
-                <img src="{% static 'images/hero-cake.jpg' %}" alt="Delicious Cake" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <img src="{% static 'images/cake1.jpg' %}" alt="Cake 1" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                    </div>
+                    <div class="col-6">
+                        <img src="{% static 'images/cake2.jpg' %}" alt="Cake 2" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                    </div>
+                    <div class="col-6">
+                        <img src="{% static 'images/cake3.jpg' %}" alt="Cake 3" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                    </div>
+                    <div class="col-6">
+                        <img src="{% static 'images/hero-cake.jpg' %}" alt="Cake 4" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                    </div>
+                </div>
             </div>
         </div>
+    </div>
+</div>
+
+<!-- Special Offers Section -->
+<div class="special-offers py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="display-5 fw-bold text-primary">Special Offers</h2>
+                <p class="lead">Seasonal promotions and exclusive deals</p>
+            </div>
+        </div>
+        {% if special_offers %}
+            <div class="row g-4">
+                {% for offer in special_offers %}
+                    <div class="col-lg-4">
+                        <div class="card h-100 shadow-lg border-0" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
+                            <div class="card-body text-center text-white p-4">
+                                {% if offer.image %}
+                                    <img src="{{ offer.image.url }}" class="img-fluid rounded mb-3" alt="{{ offer.title }}" style="max-height: 100px;">
+                                {% else %}
+                                    <i class="fas fa-birthday-cake fs-1 mb-3"></i>
+                                {% endif %}
+                                <h4 class="card-title">{{ offer.title }}</h4>
+                                <p class="card-text">{{ offer.description }}</p>
+                                {% if offer.discount_percentage %}
+                                    <div class="bg-white text-dark rounded p-2 mb-3">
+                                        <strong>{{ offer.discount_percentage }}% OFF</strong>
+                                        {% if offer.minimum_order_value %}
+                                            <br><small>Min. order: ₹{{ offer.minimum_order_value }}</small>
+                                        {% endif %}
+                                    </div>
+                                {% elif offer.discount_amount %}
+                                    <div class="bg-white text-dark rounded p-2 mb-3">
+                                        <strong>₹{{ offer.discount_amount }} OFF</strong>
+                                        {% if offer.minimum_order_value %}
+                                            <br><small>Min. order: ₹{{ offer.minimum_order_value }}</small>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+                                <a href="{% url 'catalog' %}" class="btn btn-light">Order Now</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <div class="card-body text-center text-white p-5">
+                            <i class="fas fa-info-circle fs-1 mb-3"></i>
+                            <h4 class="card-title">No Special Offers Available</h4>
+                            <p class="card-text">Check back soon for exciting offers and promotions!</p>
+                            <a href="{% url 'catalog' %}" class="btn btn-light">Browse Our Menu</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 </div>
 
@@ -40,8 +133,9 @@
                                     <h5 class="card-title">{{ cake.name }}</h5>
                                     <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
                                     <div class="mt-auto">
-                                        <p class="card-text mb-2"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
-                                        <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100">View Details</a>
+                                    <p class="card-text mb-1"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                    <p class="card-text mb-2"><small class="text-muted">{{ cake.weight }} kg</small></p>
+                                    <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100">View Details</a>
                                     </div>
                                 </div>
                             </div>

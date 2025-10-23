@@ -18,7 +18,7 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav me-auto">
                     <a class="nav-link" href="{% url 'homepage' %}">Home</a>
-                    <a class="nav-link" href="{% url 'catalog' %}">Catalog</a>
+                    <a class="nav-link" href="{% url 'catalog' %}">Menu</a>
                     <a class="nav-link" href="{% url 'search' %}">Search</a>
                 </div>
                 <div class="navbar-nav">
@@ -27,7 +27,6 @@
                         <a class="nav-link" href="{% url 'logout' %}">Logout</a>
                     {% else %}
                         <a class="nav-link" href="{% url 'login' %}">Login</a>
-                        <a class="nav-link" href="{% url 'register' %}">Register</a>
                     {% endif %}
                     <a class="nav-link" href="{% url 'cart' %}">Cart</a>
                 </div>

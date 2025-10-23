@@ -16,10 +16,42 @@ class Cake(models.Model):
     image = models.ImageField(upload_to='cakes/', blank=True, null=True)
     featured = models.BooleanField(default=False)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True)
+    weight = models.DecimalField(max_digits=5, decimal_places=2, default=1.0, help_text="Weight in kg")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.name
+
+class SpecialOffer(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, help_text="Discount percentage (e.g., 10 for 10%)")
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Fixed discount amount (alternative to percentage)")
+    minimum_order_value = models.DecimalField(max_digits=10, decimal_places=2, default=0, help_text="Minimum order value to apply offer")
+    active = models.BooleanField(default=True)
+    valid_from = models.DateTimeField()
+    valid_until = models.DateTimeField()
+    image = models.ImageField(upload_to='offers/', blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title
+
+    def is_valid(self):
+        from django.utils import timezone
+        now = timezone.now()
+        return self.active and self.valid_from <= now <= self.valid_until
+
+    def get_discount_amount(self, order_total):
+        if not self.is_valid() or order_total < self.minimum_order_value:
+            return 0
+        
+        if self.discount_percentage > 0:
+            return order_total * (self.discount_percentage / 100)
+        elif self.discount_amount > 0:
+            return min(self.discount_amount, order_total)
+        return 0
 
 class Coupon(models.Model):
     code = models.CharField(max_length=20, unique=True)
@@ -50,6 +82,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     coupon = models.ForeignKey(Coupon, on_delete=models.SET_NULL, null=True, blank=True)
+    special_offer = models.ForeignKey(SpecialOffer, on_delete=models.SET_NULL, null=True, blank=True)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tracking_number = models.CharField(max_length=100, blank=True, null=True)
     payment_id = models.CharField(max_length=100, blank=True, null=True)

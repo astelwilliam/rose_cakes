@@ -11,17 +11,34 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Cake, Order, OrderItem, Category, Coupon
+from .models import Cake, Order, OrderItem, Category, Coupon, SpecialOffer
 import razorpay
 # import stripe    # Uncomment when installing stripe
 
 def homepage(request):
     featured_cakes = Cake.objects.filter(featured=True)
-    return render(request, 'rose_cakes/homepage.html', {'featured_cakes': featured_cakes})
+    special_offers = SpecialOffer.objects.filter(active=True, valid_from__lte=timezone.now(), valid_until__gte=timezone.now())
+    return render(request, 'rose_cakes/homepage.html', {'featured_cakes': featured_cakes, 'special_offers': special_offers})
 
 def catalog(request):
+    category_id = request.GET.get('category', '')
+
     cakes = Cake.objects.all()
-    return render(request, 'rose_cakes/catalog.html', {'cakes': cakes})
+
+    # Filter by category if selected
+    if category_id:
+        cakes = cakes.filter(category_id=category_id)
+
+    # Sort cakes by category name, then cake name
+    cakes = cakes.order_by('category__name', 'name')
+
+    categories = Category.objects.all().order_by('name')
+
+    return render(request, 'rose_cakes/catalog.html', {
+        'cakes': cakes,
+        'categories': categories,
+        'selected_category': category_id
+    })
 
 def cake_detail(request, cake_id):
     cake = get_object_or_404(Cake, id=cake_id)
@@ -39,6 +56,13 @@ def add_to_cart(request, cake_id):
     request.session['cart'] = cart
     messages.success(request, f'{cake.name} added to cart!')
     return redirect('cake_detail', cake_id=cake_id)
+
+def buy_now(request, cake_id):
+    cake = get_object_or_404(Cake, id=cake_id)
+    # Clear cart and add only this item
+    request.session['cart'] = {str(cake_id): 1}
+    messages.success(request, f'{cake.name} added to cart. Proceeding to checkout...')
+    return redirect('checkout')
 
 def remove_from_cart(request, cake_id):
     cart = request.session.get('cart', {})
@@ -58,20 +82,32 @@ def cart(request):
     cart = request.session.get('cart', {})
     cart_items = []
     total = 0
+    total_items = 0
 
     for cake_id, quantity in cart.items():
         cake = get_object_or_404(Cake, id=cake_id)
         subtotal = cake.price * quantity
         total += subtotal
+        total_items += quantity
         cart_items.append({
             'cake': cake,
             'quantity': quantity,
-            'subtotal': subtotal
+            'subtotal': subtotal,
+            'total_price': subtotal  # Added for template compatibility
         })
 
+    # Calculate delivery charge
+    delivery_charge = 100
+    final_total = total + delivery_charge
+
     return render(request, 'rose_cakes/cart.html', {
+        'cart': cart_items,  # Changed to 'cart' for template compatibility
         'cart_items': cart_items,
-        'total': total
+        'total': total,
+        'total_items': total_items,
+        'total_price': total,  # Added for template compatibility
+        'delivery_charge': delivery_charge,
+        'final_total': final_total
     })
 
 def checkout(request):
@@ -89,6 +125,24 @@ def checkout(request):
             'subtotal': subtotal
         })
 
+    # Calculate delivery charge
+    delivery_charge = 0 if total >= 1000 else 100
+    final_total = total + delivery_charge
+
+    # Check for special offers
+    special_offer_discount = 0
+    applied_offer = None
+    if total > 0:  # Apply offers if cart has items
+        active_offers = SpecialOffer.objects.filter(active=True, valid_from__lte=timezone.now(), valid_until__gte=timezone.now())
+        for offer in active_offers:
+            if total >= offer.minimum_order_value:
+                discount = offer.get_discount_amount(total)
+                if discount > special_offer_discount:
+                    special_offer_discount = discount
+                    applied_offer = offer
+
+    final_total = total - special_offer_discount + delivery_charge
+
     if request.method == 'POST':
         if not cart:
             messages.error(request, 'Your cart is empty!')
@@ -97,6 +151,12 @@ def checkout(request):
         customer_name = request.POST.get('name')
         customer_email = request.POST.get('email')
         customer_address = request.POST.get('address')
+        customer_pincode = request.POST.get('pincode')
+
+        # Validate delivery area (only pincode 682001 or within 5km)
+        if customer_pincode != '682001':
+            messages.error(request, 'Sorry, we only deliver within 5km radius of our location (Pincode: 682001).')
+            return redirect('checkout')
 
         # Apply coupon if provided
         coupon_code = request.POST.get('coupon_code')
@@ -118,7 +178,7 @@ def checkout(request):
                 messages.error(request, 'Invalid or expired coupon code!')
                 return redirect('checkout')
 
-        final_total = total - discount
+        final_total = total - discount - special_offer_discount + delivery_charge
 
         # Create Razorpay order (mock for testing)
         # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -136,7 +196,8 @@ def checkout(request):
             total_amount=final_total,
             user=request.user if request.user.is_authenticated else None,
             coupon=coupon,
-            discount_amount=discount,
+            special_offer=applied_offer,
+            discount_amount=discount + special_offer_discount,
             payment_id='temp'  # Temporary value, will be updated
         )
 
@@ -168,6 +229,9 @@ def checkout(request):
         return render(request, 'rose_cakes/checkout.html', {
             'cart_items': cart_items,
             'total': final_total,
+            'delivery_charge': delivery_charge,
+            'special_offer_discount': special_offer_discount,
+            'applied_offer': applied_offer,
             'razorpay_order_id': razorpay_order['id'],
             'razorpay_key_id': settings.RAZORPAY_KEY_ID,
             'customer_name': customer_name,
@@ -177,7 +241,11 @@ def checkout(request):
 
     return render(request, 'rose_cakes/checkout.html', {
         'cart_items': cart_items,
-        'total': total
+        'total': total,
+        'delivery_charge': delivery_charge,
+        'final_total': final_total,
+        'special_offer_discount': special_offer_discount,
+        'applied_offer': applied_offer
     })
 
 def order_confirmation(request, order_id):
