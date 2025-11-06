@@ -5,67 +5,58 @@
 
 {% block content %}
 <!-- Hero Section with Parallax -->
-<div class="hero-section position-relative overflow-hidden" style="height: 80vh; background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('{% static 'images/hero-cake.jpg' %}'); background-size: cover; background-position: center; background-attachment: fixed;">
-    <div class="container h-100 d-flex align-items-center">
-        <div class="row align-items-center text-white">
-            <div class="col-lg-6">
-                <h1 class="display-4 fw-bold mb-4">Welcome to Rose Cakes</h1>
-                <p class="lead fs-5 mb-4">Delicious cakes made with love and the finest ingredients. Perfect for every occasion.</p>
-                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">Shop Now</a>
-                <a href="{% url 'search' %}" class="btn btn-outline-light btn-lg">Find Your Cake</a>
-            </div>
-            <div class="col-lg-6">
-                <div class="text-center">
-                    <img src="{% static 'images/hero-cake.jpg' %}" alt="Delicious Cake" class="img-fluid rounded shadow" style="max-height: 400px;" onerror="this.style.display='none'">
-                </div>
-            </div>
-        </div>
+<section class="hero" id="home" data-aos="fade-in">
+    <div class="hero-content">
+        <h1 data-aos="fade-up" data-aos-delay="300">Welcome to Rose Cakes</h1>
+        <p data-aos="fade-up" data-aos-delay="500">Delicious cakes made with love and the finest ingredients. Perfect for every occasion.</p>
+        <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3" data-aos="zoom-in" data-aos-delay="700"><i class="fas fa-shopping-cart me-2"></i>Shop Now</a>
+        <a href="{% url 'search' %}" class="btn btn-outline-light btn-lg" data-aos="zoom-in" data-aos-delay="700"><i class="fas fa-search me-2"></i>Find Your Cake</a>
     </div>
-</div>
+</section>
 
 <!-- About Section -->
-<div class="about-section py-5 bg-light">
+<section class="feature-section py-5" data-aos="fade-up">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h2 class="mb-4">About Rose Cakes</h2>
+            <div class="col-lg-6" data-aos="fade-right">
+                <h2 class="mb-4" style="color: #4a5568;">About Rose Cakes</h2>
                 <p class="lead">We specialize in creating beautiful, delicious cakes for all your special moments. From birthdays to weddings, anniversaries to corporate events, we have the perfect cake for every celebration.</p>
                 <p>Our cakes are made fresh daily using only the finest ingredients, traditional recipes, and a whole lot of love. Each cake is a masterpiece, crafted by our skilled bakers with attention to every detail.</p>
-                <a href="{% url 'catalog' %}" class="btn btn-primary">Explore Our Menu</a>
+                <a href="{% url 'catalog' %}" class="btn btn-primary"><i class="fas fa-utensils me-2"></i>Explore Our Menu</a>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-6" data-aos="fade-left" data-aos-delay="200">
                 <div class="row g-3">
                     <div class="col-6">
-                        <img src="{% static 'images/cake1.jpg' %}" alt="Cake 1" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                        <img src="{% static 'images/cake1.jpg' %}" alt="Cake 1" class="img-fluid rounded shadow cake-card" onerror="this.style.display='none'" data-aos="zoom-in" data-aos-delay="300">
                     </div>
                     <div class="col-6">
-                        <img src="{% static 'images/cake2.jpg' %}" alt="Cake 2" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                        <img src="{% static 'images/cake2.jpg' %}" alt="Cake 2" class="img-fluid rounded shadow cake-card" onerror="this.style.display='none'" data-aos="zoom-in" data-aos-delay="400">
                     </div>
                     <div class="col-6">
-                        <img src="{% static 'images/cake3.jpg' %}" alt="Cake 3" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                        <img src="{% static 'images/cake3.jpg' %}" alt="Cake 3" class="img-fluid rounded shadow cake-card" onerror="this.style.display='none'" data-aos="zoom-in" data-aos-delay="500">
                     </div>
                     <div class="col-6">
-                        <img src="{% static 'images/hero-cake.jpg' %}" alt="Cake 4" class="img-fluid rounded shadow" onerror="this.style.display='none'">
+                        <img src="{% static 'images/hero-cake.jpg' %}" alt="Cake 4" class="img-fluid rounded shadow cake-card" onerror="this.style.display='none'" data-aos="zoom-in" data-aos-delay="600">
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Special Offers Section -->
-<div class="special-offers py-5">
+<section class="offers py-5" data-aos="fade-up">
     <div class="container">
         <div class="row">
-            <div class="col-12 text-center mb-5">
-                <h2 class="display-5 fw-bold text-primary">Special Offers</h2>
-                <p class="lead">Seasonal promotions and exclusive deals</p>
+            <div class="col-12 text-center mb-5" data-aos="zoom-in">
+                <h2 class="display-5 fw-bold" style="color: #e2e8f0;">Special Offers</h2>
+                <p class="lead" style="color: #cbd5e0;">Seasonal promotions and exclusive deals</p>
             </div>
         </div>
         {% if special_offers %}
             <div class="row g-4">
                 {% for offer in special_offers %}
-                    <div class="col-lg-4">
+                    <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{% if forloop.counter0 == 0 %}0{% elif forloop.counter0 == 1 %}200{% else %}400{% endif %}">
                         <div class="card h-100 shadow-lg border-0" style="background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);">
                             <div class="card-body text-center text-white p-4">
                                 {% if offer.image %}
@@ -90,7 +81,7 @@
                                         {% endif %}
                                     </div>
                                 {% endif %}
-                                <a href="{% url 'catalog' %}" class="btn btn-light">Order Now</a>
+                                <a href="{% url 'catalog' %}" class="btn btn-light"><i class="fas fa-shopping-cart me-2"></i>Order Now</a>
                             </div>
                         </div>
                     </div>
@@ -98,82 +89,86 @@
             </div>
         {% else %}
             <div class="row">
-                <div class="col-12 text-center">
-                    <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="col-12 text-center" data-aos="zoom-in">
+                        <div class="card shadow-lg border-0" style="background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);">
                         <div class="card-body text-center text-white p-5">
-                            <i class="fas fa-info-circle fs-1 mb-3"></i>
-                            <h4 class="card-title">No Special Offers Available</h4>
-                            <p class="card-text">Check back soon for exciting offers and promotions!</p>
-                            <a href="{% url 'catalog' %}" class="btn btn-light">Browse Our Menu</a>
+                            <i class="fas fa-info-circle fs-1 mb-3" style="color: #cbd5e0;"></i>
+                            <h4 class="card-title" style="color: #e2e8f0;">No Special Offers Available</h4>
+                            <p class="card-text" style="color: #cbd5e0;">Check back soon for exciting offers and promotions!</p>
+                            <a href="{% url 'catalog' %}" class="btn btn-light"><i class="fas fa-utensils me-2"></i>Browse Our Menu</a>
                         </div>
                     </div>
                 </div>
             </div>
         {% endif %}
     </div>
-</div>
+</section>
 
-<div class="container">
-    <div class="row">
-        <div class="col-12">
-            <h2 class="mb-4 text-center">Featured Cakes</h2>
-            {% if featured_cakes %}
-                <div class="row g-4">
-                    {% for cake in featured_cakes %}
-                        <div class="col-xl-3 col-lg-4 col-md-6">
-                            <div class="card h-100 shadow-sm">
-                                {% if cake.image %}
-                                    <img src="{{ cake.image.url }}" class="card-img-top" alt="{{ cake.name }}">
-                                {% else %}
-                                    <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                        <span class="text-muted">No Image</span>
-                                    </div>
-                                {% endif %}
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">{{ cake.name }}</h5>
-                                    <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
-                                    <div class="mt-auto">
-                                    <p class="card-text mb-1"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
-                                    <p class="card-text mb-2"><small class="text-muted">{{ cake.weight }} kg</small></p>
-                                    <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100">View Details</a>
+<section class="feature-section py-5" data-aos="fade-up">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <h2 class="mb-4 text-center" style="color: #4a5568;">Featured Cakes</h2>
+                {% if featured_cakes %}
+                    <div class="row g-4">
+                        {% for cake in featured_cakes %}
+                            <div class="col-xl-3 col-lg-4 col-md-6" data-aos="zoom-in" data-aos-delay="{% if forloop.counter0 == 0 %}0{% elif forloop.counter0 == 1 %}100{% elif forloop.counter0 == 2 %}200{% elif forloop.counter0 == 3 %}300{% elif forloop.counter0 == 4 %}400{% elif forloop.counter0 == 5 %}500{% else %}600{% endif %}">
+                                <div class="card h-100 shadow-sm cake-card">
+                                    {% if cake.image %}
+                                        <img src="{{ cake.image.url }}" class="card-img-top" alt="{{ cake.name }}">
+                                    {% else %}
+                                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                                            <span class="text-muted">No Image</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title">{{ cake.name }}</h5>
+                                        <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
+                                        <div class="mt-auto">
+                                        <p class="card-text mb-1"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
+                                        <p class="card-text mb-2"><small class="text-muted">{{ cake.weight }} kg</small></p>
+                                        <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100"><i class="fas fa-eye me-2"></i>View Details</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <div class="text-center py-5">
-                    <p class="text-muted fs-4">No featured cakes available at the moment.</p>
-                    <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse All Cakes</a>
-                </div>
-            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5" data-aos="zoom-in">
+                        <p class="text-muted fs-4">No featured cakes available at the moment.</p>
+                        <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg"><i class="fas fa-utensils me-2"></i>Browse All Cakes</a>
+                    </div>
+                {% endif %}
+            </div>
         </div>
-    </div>
 
-    <div class="row mt-5">
-        <div class="col-12 text-center">
-            <div class="bg-primary text-white rounded p-4">
-                <h3 class="mb-3">Why Choose Rose Cakes?</h3>
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <i class="fas fa-heart fs-1 mb-2"></i>
-                        <h5>Made with Love</h5>
-                        <p>Every cake is crafted with passion and care</p>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <i class="fas fa-shipping-fast fs-1 mb-2"></i>
-                        <h5>Fast Delivery</h5>
-                        <p>Quick and reliable delivery to your doorstep</p>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <i class="fas fa-star fs-1 mb-2"></i>
-                        <h5>Premium Quality</h5>
-                        <p>Only the finest ingredients and expert baking</p>
+        <div class="row mt-5">
+            <div class="col-12 text-center" data-aos="fade-up">
+                <div class="offers rounded p-4">
+                    <h3 class="mb-3" style="color: #e2e8f0;">Why Choose Rose Cakes?</h3>
+                    <div class="row">
+                        <div class="col-md-4 mb-3" data-aos="zoom-in" data-aos-delay="200">
+                            <i class="fas fa-heart fs-1 mb-2" style="color: #e2e8f0;"></i>
+                            <h5 style="color: #e2e8f0;">Made with Love</h5>
+                            <p style="color: #cbd5e0;">Every cake is crafted with passion and care</p>
+                        </div>
+                        <div class="col-md-4 mb-3" data-aos="zoom-in" data-aos-delay="400">
+                            <i class="fas fa-shipping-fast fs-1 mb-2" style="color: #e2e8f0;"></i>
+                            <h5 style="color: #e2e8f0;">Fast Delivery</h5>
+                            <p style="color: #cbd5e0;">Quick and reliable delivery to your doorstep</p>
+                        </div>
+                        <div class="col-md-4 mb-3" data-aos="zoom-in" data-aos-delay="600">
+                            <i class="fas fa-star fs-1 mb-2" style="color: #e2e8f0;"></i>
+                            <h5 style="color: #e2e8f0;">Premium Quality</h5>
+                            <p style="color: #cbd5e0;">Only the finest ingredients and expert baking</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+
 {% endblock %}

@@ -3,91 +3,117 @@
 {% block title %}Cart - Rose Cakes{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="mb-3">Your Shopping Cart</h1>
-            <p class="lead">Review your selected cakes before checkout</p>
+<section class="feature-section py-5">
+    <div class="container">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="mb-3" style="color: #4a5568;">Your Shopping Cart</h1>
+                <p class="lead">Review your selected cakes before checkout</p>
+            </div>
         </div>
-    </div>
 
-    {% if cart %}
-        <div class="row g-4">
-            <div class="col-lg-8">
-                {% for item in cart %}
-                    <div class="card mb-3 shadow-sm cart-item">
-                        <div class="card-body">
-                            <div class="row align-items-center">
-                                <div class="col-md-3 col-sm-4">
-                                    {% if item.cake.image %}
-                                        <img src="{{ item.cake.image.url }}" class="img-fluid rounded" alt="{{ item.cake.name }}">
-                                    {% else %}
-                                        <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 80px;">
-                                            <span class="text-muted">No Image</span>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-5 col-sm-8">
-                                    <h5 class="card-title">{{ item.cake.name }}</h5>
-                                    <p class="card-text text-muted">{{ item.cake.description|truncatechars:80 }}</p>
-                                        <p class="card-text"><strong class="text-primary">₹{{ item.cake.price }}</strong></p>
-                                        <p class="card-text"><small class="text-muted">{{ item.cake.weight }} kg</small></p>
-                                </div>
-                                <div class="col-md-2 col-sm-6">
-                                    <div class="text-center">
-                                        <p class="mb-1"><strong>Quantity:</strong> {{ item.quantity }}</p>
-                                        <p class="mb-0"><strong>Total:</strong> <span class="text-success">₹{{ item.total_price }}</span></p>
+        {% if cart %}
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    {% for item in cart %}
+                        <div class="card mb-3 shadow-sm cart-item cake-card" data-aos="fade-up" data-aos-delay="{% if forloop.counter0 == 0 %}0{% elif forloop.counter0 == 1 %}100{% else %}200{% endif %}">
+                            <div class="card-body">
+                                <div class="row align-items-center gy-3">
+                                    <div class="col-md-3 col-sm-4">
+                                        {% if item.cake.image %}
+                                            <img src="{{ item.cake.image.url }}" class="img-fluid rounded" alt="{{ item.cake.name }}">
+                                        {% else %}
+                                            <div class="bg-light d-flex align-items-center justify-content-center rounded" style="height: 80px;">
+                                                <span class="text-muted">No Image</span>
+                                            </div>
+                                        {% endif %}
                                     </div>
-                                </div>
-                                <div class="col-md-2 col-sm-6">
-                                    <form method="post" action="{% url 'remove_from_cart' item.cake.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-outline-danger w-100">Remove</button>
-                                    </form>
+                                    <div class="col-lg-5 col-md-6 col-sm-8">
+                                        <h5 class="card-title mb-1">{{ item.cake.name }}</h5>
+                                        <p class="card-text text-muted mb-2">{{ item.cake.description|truncatechars:80 }}</p>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="text-muted">Unit:</span>
+                                            <strong class="text-primary">₹{{ item.cake.price }}</strong>
+                                            <span class="text-muted">· {{ item.cake.weight }} kg</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-4 col-md-6 col-sm-12">
+                                        <div class="d-flex align-items-center justify-content-start gap-2">
+                                            <form method="post" action="{% url 'remove_from_cart' item.cake.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-secondary" aria-label="Decrease quantity">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                            </form>
+                                            <div class="px-3 py-2 border rounded text-center" style="min-width: 56px;">
+                                                <strong>{{ item.quantity }}</strong>
+                                            </div>
+                                            <form method="post" action="{% url 'add_to_cart' item.cake.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-secondary" aria-label="Increase quantity">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-12 text-lg-end text-md-start">
+                                        <div class="d-flex align-items-center justify-content-between justify-content-lg-end gap-3">
+                                            <div>
+                                                <div class="small text-muted">Line total</div>
+                                                <div class="fs-5"><strong class="text-success">₹{{ item.total_price }}</strong></div>
+                                            </div>
+                                            <form method="post" action="{% url 'remove_from_cart' item.cake.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger" title="Remove item" aria-label="Remove item">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-            <div class="col-lg-4">
-                <div class="card shadow sticky-top" style="top: 20px;">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">Order Summary</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Total Items:</span>
-                            <strong>{{ total_items }}</strong>
+                    {% endfor %}
+                </div>
+                <div class="col-lg-4">
+                    <div class="card shadow sticky-top cake-card" style="top: 20px;" data-aos="fade-left" data-aos-delay="300">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Order Summary</h5>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Subtotal:</span>
-                            <strong>₹{{ total_price }}</strong>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Total Items:</span>
+                                <strong>{{ total_items }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Subtotal:</span>
+                                <strong>₹{{ total_price }}</strong>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Delivery Charge:</span>
+                                <strong>₹{{ delivery_charge }}</strong>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <span class="fs-5">Final Total:</span>
+                                <strong class="fs-5 text-primary">₹{{ final_total }}</strong>
+                            </div>
+                            <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-100 mb-2">Proceed to Checkout</a>
+                            <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">Continue Shopping</a>
                         </div>
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>Delivery Charge:</span>
-                            <strong>₹{{ delivery_charge }}</strong>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span class="fs-5">Final Total:</span>
-                            <strong class="fs-5 text-primary">₹{{ final_total }}</strong>
-                        </div>
-                        <a href="{% url 'checkout' %}" class="btn btn-success btn-lg w-100 mb-2">Proceed to Checkout</a>
-                        <a href="{% url 'catalog' %}" class="btn btn-outline-primary w-100">Continue Shopping</a>
                     </div>
                 </div>
             </div>
-        </div>
-    {% else %}
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-shopping-cart fs-1 text-muted mb-3"></i>
-                <h3 class="text-muted">Your cart is empty</h3>
-                <p class="text-muted fs-5">Looks like you haven't added any cakes to your cart yet.</p>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-shopping-cart fs-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">Your cart is empty</h3>
+                    <p class="text-muted fs-5">Looks like you haven't added any cakes to your cart yet.</p>
+                </div>
+                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse Our Cakes</a>
             </div>
-            <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse Our Cakes</a>
-        </div>
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+.Python
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# VSCode / IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Node/build artifacts (if any)
+node_modules/
+dist/
+build/
+
+# Local settings and secrets
+*.env
+.env.*
+.pytest_cache/
+coverage/
+coverage.xml
+
+# Images cache (if any generated)
+.cache/
+

@@ -11,14 +11,19 @@ from django.utils import timezone
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Cake, Order, OrderItem, Category, Coupon, SpecialOffer
-import razorpay
+from .models import Cake, Order, OrderItem, Category, Coupon, SpecialOffer, SiteSettings
+from .notifications import notify_admin_new_order, notify_user_order_status
+from django.urls import reverse
+from django.template.loader import render_to_string
+from difflib import SequenceMatcher
+# import razorpay # Removed Razorpay
 # import stripe    # Uncomment when installing stripe
 
 def homepage(request):
     featured_cakes = Cake.objects.filter(featured=True)
     special_offers = SpecialOffer.objects.filter(active=True, valid_from__lte=timezone.now(), valid_until__gte=timezone.now())
-    return render(request, 'rose_cakes/homepage.html', {'featured_cakes': featured_cakes, 'special_offers': special_offers})
+    site_settings = SiteSettings.get_settings()
+    return render(request, 'rose_cakes/homepage.html', {'featured_cakes': featured_cakes, 'special_offers': special_offers, 'site_settings': site_settings})
 
 def catalog(request):
     category_id = request.GET.get('category', '')
@@ -54,8 +59,18 @@ def add_to_cart(request, cake_id):
         cart[str(cake_id)] = 1
 
     request.session['cart'] = cart
+    
+    # If AJAX request, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        total_items = sum(cart.values())
+        return JsonResponse({
+            'success': True,
+            'message': f'{cake.name} added to cart!',
+            'total_items': total_items
+        })
+    
     messages.success(request, f'{cake.name} added to cart!')
-    return redirect('cake_detail', cake_id=cake_id)
+    return redirect('cart')
 
 def buy_now(request, cake_id):
     cake = get_object_or_404(Cake, id=cake_id)
@@ -96,18 +111,13 @@ def cart(request):
             'total_price': subtotal  # Added for template compatibility
         })
 
-    # Calculate delivery charge
-    delivery_charge = 100
-    final_total = total + delivery_charge
-
     return render(request, 'rose_cakes/cart.html', {
         'cart': cart_items,  # Changed to 'cart' for template compatibility
         'cart_items': cart_items,
         'total': total,
         'total_items': total_items,
         'total_price': total,  # Added for template compatibility
-        'delivery_charge': delivery_charge,
-        'final_total': final_total
+        'final_total': total
     })
 
 def checkout(request):
@@ -125,9 +135,7 @@ def checkout(request):
             'subtotal': subtotal
         })
 
-    # Calculate delivery charge
-    delivery_charge = 0 if total >= 1000 else 100
-    final_total = total + delivery_charge
+    final_total = total
 
     # Check for special offers
     special_offer_discount = 0
@@ -141,7 +149,7 @@ def checkout(request):
                     special_offer_discount = discount
                     applied_offer = offer
 
-    final_total = total - special_offer_discount + delivery_charge
+    final_total = total - special_offer_discount
 
     if request.method == 'POST':
         if not cart:
@@ -150,12 +158,13 @@ def checkout(request):
 
         customer_name = request.POST.get('name')
         customer_email = request.POST.get('email')
-        customer_address = request.POST.get('address')
-        customer_pincode = request.POST.get('pincode')
-
-        # Validate delivery area (only pincode 682001 or within 5km)
-        if customer_pincode != '682001':
-            messages.error(request, 'Sorry, we only deliver within 5km radius of our location (Pincode: 682001).')
+        whatsapp_number = request.POST.get('whatsapp_number')
+        pickup_date_str = request.POST.get('pickup_date')
+        
+        try:
+            pickup_date = timezone.datetime.strptime(pickup_date_str, '%Y-%m-%d').date()
+        except (ValueError, TypeError):
+            messages.error(request, 'Invalid pickup date format.')
             return redirect('checkout')
 
         # Apply coupon if provided
@@ -178,39 +187,20 @@ def checkout(request):
                 messages.error(request, 'Invalid or expired coupon code!')
                 return redirect('checkout')
 
-        final_total = total - discount - special_offer_discount + delivery_charge
+        final_total = total - discount - special_offer_discount
 
-        # Create Razorpay order (mock for testing)
-        # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        # razorpay_order = client.order.create({
-        #     'amount': int(final_total * 100),  # Amount in paisa
-        #     'currency': 'INR',
-        #     'payment_capture': '1'
-        # })
-
-        # Create order first to get ID for mock payment
         order = Order.objects.create(
             customer_name=customer_name,
             customer_email=customer_email,
-            customer_address=customer_address,
+            whatsapp_number=whatsapp_number,
+            pickup_date=pickup_date,
             total_amount=final_total,
             user=request.user if request.user.is_authenticated else None,
             coupon=coupon,
             special_offer=applied_offer,
             discount_amount=discount + special_offer_discount,
-            payment_id='temp'  # Temporary value, will be updated
+            status='pending' # Await admin acceptance
         )
-
-        # Mock Razorpay order for testing
-        razorpay_order = {
-            'id': f'order_mock_{order.id}',
-            'amount': int(final_total * 100),
-            'currency': 'INR'
-        }
-
-        # Update payment_id with correct order.id
-        order.payment_id = razorpay_order['id']
-        order.save()
 
         for cake_id, quantity in cart.items():
             cake = get_object_or_404(Cake, id=cake_id)
@@ -223,26 +213,20 @@ def checkout(request):
                 price=price
             )
 
+        # Notify admin of new order
+        try:
+            notify_admin_new_order(order)
+        except Exception:
+            pass
+
         # Clear cart
         request.session['cart'] = {}
 
-        return render(request, 'rose_cakes/checkout.html', {
-            'cart_items': cart_items,
-            'total': final_total,
-            'delivery_charge': delivery_charge,
-            'special_offer_discount': special_offer_discount,
-            'applied_offer': applied_offer,
-            'razorpay_order_id': razorpay_order['id'],
-            'razorpay_key_id': settings.RAZORPAY_KEY_ID,
-            'customer_name': customer_name,
-            'customer_email': customer_email,
-            'order_id': order.id
-        })
+        return redirect('order_confirmation', order_id=order.id)
 
     return render(request, 'rose_cakes/checkout.html', {
         'cart_items': cart_items,
         'total': total,
-        'delivery_charge': delivery_charge,
         'final_total': final_total,
         'special_offer_discount': special_offer_discount,
         'applied_offer': applied_offer
@@ -314,6 +298,61 @@ def search(request):
         'selected_category': category_id
     })
 
+def search_suggestions(request):
+    q = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category') or ''
+    suggestions = []
+    if q:
+        base_qs = Cake.objects.all()
+        if category_id:
+            base_qs = base_qs.filter(category_id=category_id)
+        exact_first = list(base_qs.filter(name__istartswith=q)[:5])
+        contains_next = list(base_qs.filter(name__icontains=q).exclude(id__in=[c.id for c in exact_first])[:5])
+        by_category = list(base_qs.filter(category__name__icontains=q).exclude(id__in=[c.id for c in exact_first + contains_next])[:5])
+        combined = exact_first + contains_next + by_category
+
+        if not combined:
+            # Fuzzy fallback using simple similarity
+            names = list(base_qs.values('id', 'name'))
+            scored = []
+            for item in names:
+                ratio = SequenceMatcher(None, q.lower(), item['name'].lower()).ratio()
+                if ratio >= 0.5:
+                    scored.append((ratio, item['id'], item['name']))
+            scored.sort(reverse=True)
+            for _, cid, cname in scored[:5]:
+                suggestions.append({
+                    'id': cid,
+                    'name': cname,
+                    'detail_url': reverse('cake_detail', args=[cid])
+                })
+        else:
+            for cake in combined[:5]:
+                suggestions.append({
+                    'id': cake.id,
+                    'name': cake.name,
+                    'detail_url': reverse('cake_detail', args=[cake.id])
+                })
+
+    return JsonResponse({'suggestions': suggestions})
+
+def search_results(request):
+    q = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category') or ''
+    cakes = Cake.objects.all()
+    if category_id:
+        cakes = cakes.filter(category_id=category_id)
+    if q:
+        cakes = cakes.filter(
+            Q(name__icontains=q) | Q(description__icontains=q) | Q(category__name__icontains=q)
+        )
+    cakes = cakes.order_by('name')
+
+    html = render_to_string('rose_cakes/partials/search_results.html', {
+        'cakes': cakes,
+    }, request=request)
+    return JsonResponse({'html': html, 'count': cakes.count()})
+
 def apply_coupon(request):
     if request.method == 'POST':
         coupon_code = request.POST.get('coupon_code')
@@ -331,45 +370,8 @@ def apply_coupon(request):
             messages.error(request, 'Invalid or expired coupon code!')
     return redirect('cart')
 
-@csrf_exempt
-def payment_success(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        razorpay_payment_id = data.get('razorpay_payment_id')
-        razorpay_order_id = data.get('razorpay_order_id')
-        razorpay_signature = data.get('razorpay_signature')
+def privacy_policy(request):
+    return render(request, 'rose_cakes/privacy_policy.html')
 
-        # For testing purposes, skip signature verification and mock success
-        # In production, uncomment the code below to verify signatures
-        # client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        # params_dict = {
-        #     'razorpay_order_id': razorpay_order_id,
-        #     'razorpay_payment_id': razorpay_payment_id,
-        #     'razorpay_signature': razorpay_signature
-        # }
-
-        try:
-            # Mock verification for testing - always succeed
-            # client.utility.verify_payment_signature(params_dict)
-            # Payment verified successfully
-            order = Order.objects.get(payment_id=razorpay_order_id)
-            order.status = 'confirmed'
-            order.save()
-
-            # Send confirmation email
-            try:
-                send_mail(
-                    'Payment Successful - Rose Cakes',
-                    f'Thank you for your payment! Order #{order.id} has been confirmed.\n\nTotal: ₹{order.total_amount:.2f}\n\nWe will process your order soon.',
-                    settings.EMAIL_HOST_USER,
-                    [order.customer_email],
-                    fail_silently=True,
-                )
-            except:
-                pass
-
-            return JsonResponse({'status': 'success'})
-        except:
-            return JsonResponse({'status': 'failed'})
-
-    return JsonResponse({'status': 'invalid'})
+def terms_conditions(request):
+    return render(request, 'rose_cakes/terms_conditions.html')

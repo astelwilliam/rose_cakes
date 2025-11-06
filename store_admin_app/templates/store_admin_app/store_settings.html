@@ -1,0 +1,45 @@
+{% extends 'rose_cakes/base.html' %}
+
+{% block title %}Store Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Store Settings</h1>
+    <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+            <label for="store_name" class="form-label">Store Name</label>
+            <input type="text" class="form-control" id="store_name" name="store_name" value="{{ settings.store_name }}">
+        </div>
+        <div class="mb-3">
+            <label for="store_address" class="form-label">Store Address</label>
+            <textarea class="form-control" id="store_address" name="store_address">{{ settings.store_address }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="store_phone" class="form-label">Store Phone</label>
+            <input type="text" class="form-control" id="store_phone" name="store_phone" value="{{ settings.store_phone }}">
+        </div>
+        <div class="mb-3">
+            <label for="store_email" class="form-label">Store Email</label>
+            <input type="email" class="form-control" id="store_email" name="store_email" value="{{ settings.store_email }}">
+        </div>
+        <div class="mb-3">
+            <label for="store_description" class="form-label">Store Description</label>
+            <textarea class="form-control" id="store_description" name="store_description">{{ settings.store_description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="facebook_url" class="form-label">Facebook URL</label>
+            <input type="url" class="form-control" id="facebook_url" name="facebook_url" value="{{ settings.facebook_url }}">
+        </div>
+        <div class="mb-3">
+            <label for="instagram_url" class="form-label">Instagram URL</label>
+            <input type="url" class="form-control" id="instagram_url" name="instagram_url" value="{{ settings.instagram_url }}">
+        </div>
+        <div class="mb-3">
+            <label for="whatsapp_number" class="form-label">WhatsApp Number</label>
+            <input type="text" class="form-control" id="whatsapp_number" name="whatsapp_number" value="{{ settings.whatsapp_number }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Save Settings</button>
+    </form>
+</div>
+{% endblock %}

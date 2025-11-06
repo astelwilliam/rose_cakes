@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -69,15 +70,17 @@ class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
         ('confirmed', 'Confirmed'),
-        ('processing', 'Processing'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
+        ('processing', 'Preparing'),
+        ('ready_for_pickup', 'Ready for Pickup'),
+        ('out_for_delivery', 'Out for Delivery'),
+        ('picked_up', 'Picked Up'),
         ('cancelled', 'Cancelled'),
     ]
 
     customer_name = models.CharField(max_length=100)
     customer_email = models.EmailField()
-    customer_address = models.TextField()
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True)
+    pickup_date = models.DateField(default=timezone.now)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -85,7 +88,6 @@ class Order(models.Model):
     special_offer = models.ForeignKey(SpecialOffer, on_delete=models.SET_NULL, null=True, blank=True)
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tracking_number = models.CharField(max_length=100, blank=True, null=True)
-    payment_id = models.CharField(max_length=100, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -100,3 +102,47 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.quantity} x {self.cake.name}"
+
+class SiteSettings(models.Model):
+    site_name = models.CharField(max_length=100, default="Rose Cakes")
+    logo = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Upload site logo")
+    hero_image = models.ImageField(upload_to='site/', blank=True, null=True, help_text="Main hero image for homepage")
+    about_image_1 = models.ImageField(upload_to='site/', blank=True, null=True, help_text="About section image 1")
+    about_image_2 = models.ImageField(upload_to='site/', blank=True, null=True, help_text="About section image 2")
+    about_image_3 = models.ImageField(upload_to='site/', blank=True, null=True, help_text="About section image 3")
+    about_image_4 = models.ImageField(upload_to='site/', blank=True, null=True, help_text="About section image 4")
+    
+    # Social Media Links
+    instagram_url = models.URLField(blank=True, null=True, help_text="Instagram profile URL")
+    facebook_url = models.URLField(blank=True, null=True, help_text="Facebook page URL")
+    twitter_url = models.URLField(blank=True, null=True, help_text="Twitter profile URL")
+    email = models.EmailField(blank=True, null=True, help_text="Contact email address")
+    
+    # Contact Information
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    address = models.TextField(blank=True, null=True)
+
+    # Store Description
+    store_description = models.TextField(blank=True, null=True, help_text="Store description")
+
+    # WhatsApp
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True, help_text="WhatsApp number")
+
+    # SEO and Meta
+    meta_description = models.TextField(blank=True, null=True, help_text="Site meta description for SEO")
+    meta_keywords = models.CharField(max_length=500, blank=True, null=True, help_text="Comma-separated keywords")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Site Settings"
+        verbose_name_plural = "Site Settings"
+
+    def __str__(self):
+        return self.site_name
+
+    @classmethod
+    def get_settings(cls):
+        """Get the first (and typically only) site settings instance"""
+        return cls.objects.first()

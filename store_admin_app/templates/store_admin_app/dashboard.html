@@ -1,0 +1,20 @@
+{% extends 'rose_cakes/base.html' %}
+
+{% block title %}Store Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Store Admin Dashboard</h1>
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Store Settings</h5>
+                    <p class="card-text">Manage store information and settings.</p>
+                    <a href="{% url 'store_admin_app:store_settings' %}" class="btn btn-primary">Manage Settings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

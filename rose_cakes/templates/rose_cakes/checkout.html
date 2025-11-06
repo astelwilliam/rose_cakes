@@ -3,226 +3,151 @@
 {% block title %}Checkout - Rose Cakes{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h1 class="mb-4 text-center">Checkout</h1>
+<section class="feature-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="mb-4 text-center" style="color: #4a5568;">Checkout</h1>
 
-            {% if razorpay_order_id %}
-            <!-- Payment Section -->
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="card shadow checkout-summary">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Order Summary</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Cake</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in cart_items %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    {% if item.cake.image %}
-                                                        <img src="{{ item.cake.image.url }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="{{ item.cake.name }}">
-                                                    {% endif %}
-                                                    <div>
-                                                        <strong>{{ item.cake.name }}</strong>
-                                                        <br>
-                                                        <small class="text-muted">{{ item.cake.description|truncatechars:30 }}</small>
+                <!-- Checkout Form Section -->
+                <div class="row g-4">
+                    <div class="col-lg-8" data-aos="fade-right">
+                        <div class="card shadow checkout-summary cake-card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">Order Summary</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Cake</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                                <th>Subtotal</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for item in cart_items %}
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        {% if item.cake.image %}
+                                                            <img src="{{ item.cake.image.url }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="{{ item.cake.name }}">
+                                                        {% endif %}
+                                                        <div>
+                                                            <strong>{{ item.cake.name }}</strong>
+                                                            <br>
+                                                            <small class="text-muted">{{ item.cake.description|truncatechars:30 }}</small>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </td>
-                                            <td>{{ item.quantity }}</td>
-                                            <td>₹{{ item.cake.price }}</td>
-                                            <td><strong>₹{{ item.subtotal }}</strong></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="table-light">
-                                            <td colspan="3" class="text-end"><strong>Subtotal:</strong></td>
-                                            <td><strong>₹{{ total }}</strong></td>
-                                        </tr>
-                                        <tr class="table-light">
-                                            <td colspan="3" class="text-end"><strong>Delivery Charge:</strong></td>
-                                            <td><strong>₹{{ delivery_charge }}</strong></td>
-                                        </tr>
-                                        <tr class="table-light">
-                                            <td colspan="3" class="text-end"><strong>Final Total:</strong></td>
-                                            <td><strong class="text-primary fs-5">₹{{ total|add:delivery_charge }}</strong></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                                                </td>
+                                                <td>{{ item.quantity }}</td>
+                                                <td>₹{{ item.cake.price }}</td>
+                                                <td><strong>₹{{ item.subtotal }}</strong></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                        <tfoot>
+                                            <tr class="table-light">
+                                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                                <td><strong class="text-primary fs-5">₹{{ total }}</strong></td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card shadow mt-4 cake-card" data-aos="fade-up" data-aos-delay="200">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Coupon Code</h5>
+                            </div>
+                            <div class="card-body">
+                                <form method="post" action="{% url 'apply_coupon' %}">
+                                    {% csrf_token %}
+                                    <div class="row g-2">
+                                        <div class="col-md-8">
+                                            <input type="text" class="form-control" name="coupon_code" placeholder="Enter coupon code (optional)" required>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button type="submit" class="btn btn-outline-primary w-100">Apply Coupon</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="col-lg-4">
-                    <div class="card shadow payment-card">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="card-title mb-0">Complete Payment</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="text-center mb-3">
-                                <h4>Total: ₹{{ total }}</h4>
-                                <small class="text-muted">Order #{{ order_id }}</small>
+                    <div class="col-lg-4" data-aos="fade-left" data-aos-delay="400">
+                        <div class="card shadow checkout-form cake-card">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="card-title mb-0">Pickup Information</h5>
                             </div>
-                            <button id="rzp-button1" class="btn btn-success btn-lg w-100">Pay Now</button>
+                            <div class="card-body">
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="name" class="form-label">Full Name</label>
+                                        <input type="text" class="form-control" id="name" name="name" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="whatsapp_number" class="form-label">WhatsApp Number</label>
+                                        <input type="tel" class="form-control" id="whatsapp_number" name="whatsapp_number" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="pickup_date" class="form-label">Pickup Date</label>
+                                        <input type="date" class="form-control" id="pickup_date" name="pickup_date" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="coupon_code" class="form-label">Coupon Code (Optional)</label>
+                                        <input type="text" class="form-control" id="coupon_code" name="coupon_code" placeholder="Enter coupon code">
+                                    </div>
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-success btn-lg">Place Order (Cash on Delivery)</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="card shadow mt-3">
-                        <div class="card-body">
-                            <h6 class="card-title">Secure Payment</h6>
-                            <p class="card-text small text-muted">
-                                <i class="fas fa-shield-alt text-success me-2"></i>
-                                Powered by Razorpay - Secure & Trusted
-                            </p>
+                        <div class="card shadow mt-3 cake-card" data-aos="zoom-in" data-aos-delay="600">
+                            <div class="card-body">
+                                <h6 class="card-title">Secure Checkout</h6>
+                                <p class="card-text small text-muted">
+                                    <i class="fas fa-shield-alt text-success me-2"></i>
+                                    Your order will be processed securely.
+                                </p>
+                                <p class="card-text small text-muted">
+                                    <i class="fas fa-store text-primary me-2"></i>
+                                    Your order will be ready for pickup on your selected date. Payment will be collected at pickup.
+                                </p>
+                                <a href="https://maps.app.goo.gl/6vhFSj9bW87JgUq77" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-map-marker-alt me-1"></i> View Pickup Location
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            {% else %}
-            <!-- Checkout Form Section -->
-            <div class="row g-4">
-                <div class="col-lg-8">
-                    <div class="card shadow checkout-summary">
-                        <div class="card-header bg-primary text-white">
-                            <h5 class="card-title mb-0">Order Summary</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Cake</th>
-                                            <th>Quantity</th>
-                                            <th>Price</th>
-                                            <th>Subtotal</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in cart_items %}
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    {% if item.cake.image %}
-                                                        <img src="{{ item.cake.image.url }}" class="rounded me-3" style="width: 50px; height: 50px; object-fit: cover;" alt="{{ item.cake.name }}">
-                                                    {% endif %}
-                                                    <div>
-                                                        <strong>{{ item.cake.name }}</strong>
-                                                        <br>
-                                                        <small class="text-muted">{{ item.cake.description|truncatechars:30 }}</small>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td>{{ item.quantity }}</td>
-                                            <td>₹{{ item.cake.price }}</td>
-                                            <td><strong>₹{{ item.subtotal }}</strong></td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                    <tfoot>
-                                        <tr class="table-light">
-                                            <td colspan="3" class="text-end"><strong>Total:</strong></td>
-                                            <td><strong class="text-primary fs-5">₹{{ total }}</strong></td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card shadow mt-4">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Coupon Code</h5>
-                        </div>
-                        <div class="card-body">
-                            <form method="post" action="{% url 'apply_coupon' %}">
-                                {% csrf_token %}
-                                <div class="row g-2">
-                                    <div class="col-md-8">
-                                        <input type="text" class="form-control" name="coupon_code" placeholder="Enter coupon code (optional)" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn btn-outline-primary w-100">Apply Coupon</button>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card shadow checkout-form">
-                        <div class="card-header bg-success text-white">
-                            <h5 class="card-title mb-0">Shipping Information</h5>
-                        </div>
-                        <div class="card-body">
-                            <form method="post">
-                                {% csrf_token %}
-                                <div class="mb-3">
-                                    <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" name="name" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" name="email" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" name="phone" required>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="pincode" class="form-label">Pincode</label>
-                                    <input type="text" class="form-control" id="pincode" name="pincode" placeholder="Enter your pincode" required>
-                                    <small class="form-text text-muted">We only deliver within 5km radius of our location (Pincode: 682001)</small>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="address" class="form-label">Shipping Address</label>
-                                    <textarea class="form-control" id="address" name="address" rows="3" placeholder="Enter your full shipping address" required></textarea>
-                                </div>
-                                <div class="mb-3">
-                                    <label for="coupon_code" class="form-label">Coupon Code (Optional)</label>
-                                    <input type="text" class="form-control" id="coupon_code" name="coupon_code" placeholder="Enter coupon code">
-                                </div>
-                                <div class="d-grid">
-                                    <button type="submit" class="btn btn-success btn-lg">Proceed to Payment</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="card shadow mt-3">
-                        <div class="card-body">
-                            <h6 class="card-title">Secure Checkout</h6>
-                            <p class="card-text small text-muted">
-                                <i class="fas fa-shield-alt text-success me-2"></i>
-                                Your payment information is secure and encrypted.
-                            </p>
-                            <p class="card-text small text-muted">
-                                <i class="fas fa-truck text-primary me-2"></i>
-                                Fast and reliable delivery to your doorstep.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
         </div>
     </div>
-</div>
+</section>
+
+<script>
+    // Set minimum date for pickup_date input to today
+    document.addEventListener('DOMContentLoaded', function() {
+        const pickupDateInput = document.getElementById('pickup_date');
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = (today.getMonth() + 1).toString().padStart(2, '0');
+        const day = today.getDate().toString().padStart(2, '0');
+        pickupDateInput.min = `${year}-${month}-${day}`;
+    });
+</script>
 
 {% if razorpay_order_id %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

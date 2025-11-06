@@ -3,105 +3,115 @@
 {% block title %}Order History - Rose Cakes{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="mb-3">Your Order History</h1>
-            <p class="lead">Track and manage your past orders</p>
-        </div>
-    </div>
-
-    {% if orders %}
-        <div class="row">
+<section class="feature-section py-5">
+    <div class="container">
+        <div class="row mb-4">
             <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="card-title mb-0">Recent Orders</h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th class="ps-4">Order ID</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Total</th>
-                                        <th class="pe-4">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {% for order in orders %}
-                                    <tr>
-                                        <td class="ps-4">
-                                            <strong>#{{ order.id }}</strong>
-                                        </td>
-                                        <td>
-                                            <div>
-                                                <strong>{{ order.created_at|date:"M d, Y" }}</strong>
-                                                <br>
-                                                <small class="text-muted">{{ order.created_at|date:"H:i" }}</small>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span class="badge fs-6 px-3 py-2 bg-{% if order.status == 'delivered' %}success{% elif order.status == 'shipped' %}info{% elif order.status == 'processing' %}warning{% else %}secondary{% endif %}">
-                                                {% if order.status == 'delivered' %}
-                                                    <i class="fas fa-check-circle me-1"></i>
-                                                {% elif order.status == 'shipped' %}
-                                                    <i class="fas fa-truck me-1"></i>
-                                                {% elif order.status == 'processing' %}
-                                                    <i class="fas fa-clock me-1"></i>
-                                                {% else %}
+                <h1 class="mb-3" style="color: #4a5568;">Your Order History</h1>
+                <p class="lead">Track and manage your past orders</p>
+            </div>
+        </div>
+
+        {% if orders %}
+            <div class="row">
+                <div class="col-12" data-aos="fade-up">
+                    <div class="card shadow cake-card">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="card-title mb-0">Recent Orders</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="ps-4">Order ID</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Total</th>
+                                            <th class="pe-4">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in orders %}
+                                        <tr data-aos="fade-in" data-aos-delay="{% if forloop.counter0 == 0 %}0{% elif forloop.counter0 == 1 %}100{% else %}200{% endif %}">
+                                            <td class="ps-4">
+                                                <strong>#{{ order.id }}</strong>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>{{ order.created_at|date:"M d, Y" }}</strong>
+                                                    <br>
+                                                    <small class="text-muted">{{ order.created_at|date:"H:i" }}</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                            <span class="badge fs-6 px-3 py-2 bg-{% if order.status == 'pending' %}secondary{% elif order.status == 'confirmed' %}primary{% elif order.status == 'processing' %}warning{% elif order.status == 'ready_for_pickup' %}info{% elif order.status == 'out_for_delivery' %}info{% elif order.status == 'picked_up' %}success{% elif order.status == 'cancelled' %}danger{% else %}secondary{% endif %}">
+                                                {% if order.status == 'pending' %}
                                                     <i class="fas fa-hourglass-half me-1"></i>
+                                                {% elif order.status == 'confirmed' %}
+                                                    <i class="fas fa-check me-1"></i>
+                                                {% elif order.status == 'processing' %}
+                                                    <i class="fas fa-kitchen-set me-1"></i>
+                                                {% elif order.status == 'ready_for_pickup' %}
+                                                    <i class="fas fa-bell me-1"></i>
+                                                {% elif order.status == 'out_for_delivery' %}
+                                                    <i class="fas fa-truck me-1"></i>
+                                                {% elif order.status == 'picked_up' %}
+                                                    <i class="fas fa-check-circle me-1"></i>
+                                                {% elif order.status == 'cancelled' %}
+                                                    <i class="fas fa-times-circle me-1"></i>
+                                                {% else %}
+                                                    <i class="fas fa-info-circle me-1"></i>
                                                 {% endif %}
                                                 {{ order.get_status_display }}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <strong class="text-primary fs-5">₹{{ order.total_amount }}</strong>
-                                        </td>
-                                        <td class="pe-4">
-                                            <a href="{% url 'order_confirmation' order.id %}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fas fa-eye me-1"></i>View Details
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    {% endfor %}
-                                </tbody>
-                            </table>
+                                            </td>
+                                            <td>
+                                                <strong class="text-primary fs-5">₹{{ order.total_amount }}</strong>
+                                            </td>
+                                            <td class="pe-4">
+                                                <a href="{% url 'order_confirmation' order.id %}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye me-1"></i>View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card shadow">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Need Help with an Order?</h5>
-                        <p class="card-text text-muted">Contact our customer service team for assistance with any order-related questions.</p>
-                        <button class="btn btn-outline-primary">
-                            <i class="fas fa-headset me-2"></i>Contact Support
-                        </button>
+            <div class="row mt-4">
+                <div class="col-12" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="card shadow cake-card">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">Need Help with an Order?</h5>
+                            <p class="card-text text-muted">Contact our customer service team for assistance with any order-related questions.</p>
+                            <button class="btn btn-outline-primary">
+                                <i class="fas fa-headset me-2"></i>Contact Support
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    {% else %}
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-shopping-bag fs-1 text-muted mb-3"></i>
-                <h3 class="text-muted">No orders yet</h3>
-                <p class="text-muted fs-5">You haven't placed any orders yet. Start exploring our delicious cakes!</p>
+        {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-shopping-bag fs-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">No orders yet</h3>
+                    <p class="text-muted fs-5">You haven't placed any orders yet. Start exploring our delicious cakes!</p>
+                </div>
+                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-utensils me-2"></i>Start Shopping
+                </a>
+                <a href="{% url 'search' %}" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-search me-2"></i>Find Cakes
+                </a>
             </div>
-            <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">
-                <i class="fas fa-utensils me-2"></i>Start Shopping
-            </a>
-            <a href="{% url 'search' %}" class="btn btn-outline-primary btn-lg">
-                <i class="fas fa-search me-2"></i>Find Cakes
-            </a>
-        </div>
-    {% endif %}
-</div>
+        {% endif %}
+    </div>
+</section>
 {% endblock %}

@@ -1,7 +1,6 @@
 from django.apps import AppConfig
 
 
-class RoseCakesConfig(AppConfig):
+class StoreAdminAppConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'rose_cakes'
-    verbose_name = 'Rose Cakes'
+    name = 'store_admin_app'

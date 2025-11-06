@@ -3,100 +3,185 @@
 {% block title %}Search Cakes - Rose Cakes{% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="mb-3">Search Our Cakes</h1>
-            <p class="lead">Find the perfect cake for your occasion</p>
-        </div>
-    </div>
-
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card shadow">
-                <div class="card-body">
-                    <form method="get" class="search-form">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="search-query" class="form-label">Search Term</label>
-                                <input type="text" id="search-query" name="q" class="form-control form-control-lg" placeholder="Enter cake name or description..." value="{{ query }}">
-                            </div>
-                            <div class="col-md-4">
-                                <label for="category-select" class="form-label">Category</label>
-                                <select id="category-select" name="category" class="form-select form-select-lg">
-                                    <option value="">All Categories</option>
-                                    {% for category in categories %}
-                                        <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
-                                            {{ category.name }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            <div class="col-md-2">
-                                <label class="form-label">&nbsp;</label>
-                                <button type="submit" class="btn btn-primary btn-lg w-100">
-                                    <i class="fas fa-search me-2"></i>Search
-                                </button>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if cakes %}
-        <div class="row mb-3">
+<section class="feature-section py-5">
+    <div class="container">
+        <div class="row mb-4">
             <div class="col-12">
-                <h3 class="mb-3">Search Results ({{ cakes|length }} found)</h3>
+                <h1 class="mb-3" style="color: #4a5568;">Search Our Cakes</h1>
+                <p class="lead">Find the perfect cake for your occasion</p>
             </div>
         </div>
-        <div class="row g-4">
-            {% for cake in cakes %}
-                <div class="col-xl-3 col-lg-4 col-md-6">
-                    <div class="card h-100 shadow-sm">
-                        {% if cake.image %}
-                            <img src="{{ cake.image.url }}" class="card-img-top" alt="{{ cake.name }}">
-                        {% else %}
-                            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
-                                <span class="text-muted">No Image</span>
+
+        <div class="row mb-5">
+            <div class="col-12" data-aos="fade-up">
+                <div class="card shadow cake-card">
+                    <div class="card-body">
+                        <form method="get" class="search-form">
+                            <div class="row g-3">
+                                <div class="col-md-6 position-relative">
+                                    <label for="search-query" class="form-label">Search Term</label>
+                                    <input type="text" id="search-query" name="q" class="form-control form-control-lg" placeholder="Enter cake name or description..." value="{{ query }}" autocomplete="off">
+                                    <div id="search-suggestions" class="list-group position-absolute w-100 d-none" style="z-index: 1050; max-height: 280px; overflow-y: auto;">
+                                        <!-- Suggestions injected here -->
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <label for="category-select" class="form-label">Category</label>
+                                    <select id="category-select" name="category" class="form-select form-select-lg">
+                                        <option value="">All Categories</option>
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}" {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                                                {{ category.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label">&nbsp;</label>
+                                    <button type="submit" class="btn btn-primary btn-lg w-100">
+                                        <i class="fas fa-search me-2"></i>Search
+                                    </button>
+                                </div>
                             </div>
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h5 class="card-title">{{ cake.name }}</h5>
-                            {% if cake.category %}
-                                <span class="badge bg-secondary mb-2">{{ cake.category.name }}</span>
-                            {% endif %}
-                            <p class="card-text flex-grow-1">{{ cake.description|truncatechars:100 }}</p>
-                            <div class="mt-auto">
-                                <p class="card-text mb-1"><strong class="text-primary fs-5">₹{{ cake.price }}</strong></p>
-                                <p class="card-text mb-2"><small class="text-muted">{{ cake.weight }} kg</small></p>
-                                <a href="{% url 'cake_detail' cake.id %}" class="btn btn-primary w-100">View Details</a>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-    {% elif query or selected_category %}
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-search fs-1 text-muted mb-3"></i>
-                <h3 class="text-muted">No cakes found</h3>
-                <p class="text-muted fs-5">Try adjusting your search criteria or browse our full catalog.</p>
             </div>
-            <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">Browse All Cakes</a>
-            <a href="{% url 'search' %}" class="btn btn-outline-primary btn-lg">New Search</a>
         </div>
-    {% else %}
-        <div class="text-center py-5">
-            <div class="mb-4">
-                <i class="fas fa-search fs-1 text-muted mb-3"></i>
-                <h3 class="text-muted">Start Your Search</h3>
-                <p class="text-muted fs-5">Use the search form above to find cakes by name, description, or category.</p>
+
+        <div id="search-results">
+        {% include 'rose_cakes/partials/search_results.html' with cakes=cakes %}
+        </div>
+
+        {% if not cakes %}
+            {% if query or selected_category %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fs-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">No cakes found</h3>
+                    <p class="text-muted fs-5">Try adjusting your search criteria or browse our full catalog.</p>
+                </div>
+                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg me-3">Browse All Cakes</a>
+                <a href="{% url 'search' %}" class="btn btn-outline-primary btn-lg">New Search</a>
             </div>
-            <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse All Cakes</a>
-        </div>
-    {% endif %}
-</div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-search fs-1 text-muted mb-3"></i>
+                    <h3 class="text-muted">Start Your Search</h3>
+                    <p class="text-muted fs-5">Use the search form above to find cakes by name, description, or category.</p>
+                </div>
+                <a href="{% url 'catalog' %}" class="btn btn-primary btn-lg">Browse All Cakes</a>
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('search-query');
+    const sugg = document.getElementById('search-suggestions');
+    const form = document.querySelector('.search-form');
+    const categorySelect = document.getElementById('category-select');
+    const resultsContainer = document.getElementById('search-results');
+    let timeoutId;
+    let activeIndex = -1;
+
+    function clearSuggestions() {
+        sugg.innerHTML = '';
+        sugg.classList.add('d-none');
+        activeIndex = -1;
+    }
+
+    function renderSuggestions(items) {
+        sugg.innerHTML = '';
+        if (!items || items.length === 0) {
+            clearSuggestions();
+            return;
+        }
+        items.forEach((item, idx) => {
+            const a = document.createElement('a');
+            a.href = item.detail_url;
+            a.className = 'list-group-item list-group-item-action d-flex justify-content-between align-items-center';
+            a.innerHTML = `<span><i class="fas fa-cake-candles me-2 text-primary"></i>${item.name}</span><i class="fas fa-arrow-right text-muted"></i>`;
+            a.addEventListener('mousedown', function(e) {
+                // Navigate on click without blurring input first
+                e.preventDefault();
+                window.location.href = item.detail_url;
+            });
+            sugg.appendChild(a);
+        });
+        sugg.classList.remove('d-none');
+    }
+
+    function fetchSuggestions(q) {
+        const url = new URL('{% url "search_suggestions" %}', window.location.origin);
+        url.searchParams.set('q', q);
+        if (categorySelect && categorySelect.value) url.searchParams.set('category', categorySelect.value);
+        fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+            .then(r => r.json())
+            .then(data => renderSuggestions(data.suggestions))
+            .catch(() => clearSuggestions());
+    }
+
+    function fetchResults() {
+        const q = input.value.trim();
+        const url = new URL('{% url "search_results" %}', window.location.origin);
+        if (q) url.searchParams.set('q', q);
+        if (categorySelect && categorySelect.value) url.searchParams.set('category', categorySelect.value);
+        fetch(url.toString(), { headers: { 'X-Requested-With': 'XMLHttpRequest' }})
+            .then(r => r.json())
+            .then(data => {
+                resultsContainer.innerHTML = data.html;
+            })
+            .catch(() => {/* ignore */});
+    }
+
+    input.addEventListener('input', function() {
+        const q = input.value.trim();
+        clearTimeout(timeoutId);
+        if (!q) { clearSuggestions(); return; }
+        timeoutId = setTimeout(() => { fetchSuggestions(q); fetchResults(); }, 200);
+    });
+
+    if (categorySelect) {
+        categorySelect.addEventListener('change', function() {
+            clearSuggestions();
+            fetchResults();
+            const q = input.value.trim();
+            if (q) fetchSuggestions(q);
+        });
+    }
+
+    input.addEventListener('keydown', function(e) {
+        const items = Array.from(sugg.querySelectorAll('.list-group-item'));
+        if (sugg.classList.contains('d-none') || items.length === 0) return;
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            activeIndex = (activeIndex + 1) % items.length;
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            activeIndex = (activeIndex - 1 + items.length) % items.length;
+        } else if (e.key === 'Enter') {
+            if (activeIndex >= 0) {
+                e.preventDefault();
+                items[activeIndex].dispatchEvent(new Event('mousedown'));
+                return;
+            }
+        } else if (e.key === 'Escape') {
+            clearSuggestions();
+            return;
+        } else {
+            return;
+        }
+        items.forEach((it, idx) => it.classList.toggle('active', idx === activeIndex));
+    });
+
+    document.addEventListener('click', function(e) {
+        if (!sugg.contains(e.target) && e.target !== input) {
+            clearSuggestions();
+        }
+    });
+});
+</script>
 {% endblock %}
