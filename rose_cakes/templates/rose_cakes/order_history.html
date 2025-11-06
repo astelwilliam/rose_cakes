@@ -90,9 +90,19 @@
                         <div class="card-body text-center">
                             <h5 class="card-title">Need Help with an Order?</h5>
                             <p class="card-text text-muted">Contact our customer service team for assistance with any order-related questions.</p>
-                            <button class="btn btn-outline-primary">
-                                <i class="fas fa-headset me-2"></i>Contact Support
-                            </button>
+                            {% if site_settings.whatsapp_number %}
+                                <a href="https://wa.me/{{ site_settings.whatsapp_number|slice:"1:" }}?text=Hi%20Rose%20Cakes!%20I%20need%20help%20with%20my%20order%20%23{{ order.id }}." target="_blank" class="btn btn-success">
+                                    <i class="fab fa-whatsapp me-2"></i>Contact Support
+                                </a>
+                            {% elif site_settings.phone %}
+                                <a href="https://wa.me/{{ site_settings.phone|slice:"1:" }}?text=Hi%20Rose%20Cakes!%20I%20need%20help%20with%20my%20order%20%23{{ order.id }}." target="_blank" class="btn btn-success">
+                                    <i class="fab fa-whatsapp me-2"></i>Contact Support
+                                </a>
+                            {% else %}
+                                <a href="https://wa.me/1234567890?text=Hi%20Rose%20Cakes!%20I%20need%20help%20with%20my%20order%20%23{{ order.id }}." target="_blank" class="btn btn-success">
+                                    <i class="fab fa-whatsapp me-2"></i>Contact Support
+                                </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
